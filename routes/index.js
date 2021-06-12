@@ -17,6 +17,17 @@ router.get('/todo', async (req, res) => {
   //res.send(result);
 });
 
+router.get('/todo/:idx', async (req, res) => {
+  const idx = req.params.idx;
+  // Wrong Index
+  if (!(await Todo.checkData(idx))) {
+    res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, resMessage.READ_TODO_FAIL));
+    return;
+  }
+  const result = await Todo.getData(idx);
+  return res.status(statusCode.OK).send(util.success(statusCode.OK, resMessage.READ_TODO_SUCCESS, result));
+});
+
 router.post("/todo", async(req, res) => {
   const {content} = req.body;
   if (!content) {
@@ -27,8 +38,35 @@ router.post("/todo", async(req, res) => {
   res.status(statusCode.OK).send(util.success(statusCode.OK, resMessage.WRITE_SUCCESS, {idx: newIdx}));
 });
 
+router.put("/todo/done/:idx", async(req, res) => {
+  const idx = req.params.idx;
+  // NULL Value Error handling
+  if (!idx) {
+      res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, resMessage.NULL_VALUE));
+      return;
+  }
+  // Wrong Index
+  if (!(await Todo.checkData(idx))) {
+      res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, resMessage.READ_FAIL));
+      return;
+  }
+
+  result = await Todo.updateData(idx);
+  // Update Fail by DB Error
+  if (result.affectedRows !== 1) {
+      return res.status(statusCode.DB_ERROR).send(util.fail(statusCode.DB_ERROR, resMessage.UPDATE_FAIL));
+  }
+
+  const data = await Todo.getData(idx);
+  res.status(statusCode.OK).send(util.success(statusCode.OK, resMessage.UPDATE_SUCCESS, data));
+});
+
 router.delete("/todo/deleteAll", async(req, res) => {
   result = await Todo.deleteAllData();
+  // Update Fail by DB Error
+  if (result.affectedRows < 1) {
+    return res.status(statusCode.DB_ERROR).send(util.fail(statusCode.DB_ERROR, resMessage.DELETE_FAIL));
+}
   res.status(statusCode.OK).send(util.success(statusCode.OK, resMessage.DELETE_SUCCESS, {}));
 });
 
@@ -46,6 +84,10 @@ router.delete("/todo/:idx", async(req, res) => {
   }
 
   result = await Todo.deleteData(idx);
+  // Update Fail by DB Error
+  if (result.affectedRows !== 1) {
+    return res.status(statusCode.DB_ERROR).send(util.fail(statusCode.DB_ERROR, resMessage.DELETE_FAIL));
+  }
   res.status(statusCode.OK).send(util.success(statusCode.OK, resMessage.DELETE_SUCCESS, {deletedDataIdx: idx}));
 });
 

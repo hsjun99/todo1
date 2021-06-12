@@ -16,6 +16,20 @@ const tododata = {
             throw err;
         }
     },
+    getData: async (idx) => {
+        const query = `SELECT * FROM ${table} WHERE idx=${idx}`;
+        try {
+            const result = await pool.queryParam(query);
+            return result;
+        } catch (err) {
+            if (err.errno == 1062) {
+                console.log('getData ERROR : ', err.errno, err.code);
+                return -1;
+            }
+            console.log('getData ERROR : ', err);
+            throw err;
+        }
+    },
     postData: async (content) => {
         const fields = 'content';
         const questions = `?`;
@@ -31,6 +45,21 @@ const tododata = {
                 return -1;
             }
             console.log('getAllData ERROR : ', err);
+            throw err;
+        }
+    },
+    updateData: async (idx) => {
+
+        const query = `UPDATE ${table} SET done=1-done WHERE idx=${idx}`;
+        try {
+            const result = await pool.queryParam(query);
+            return result;
+        } catch (err) {
+            if (err.errno == 1062) {
+                console.log('updateData ERROR: ', err.errno, err.code);
+                return -1;
+            }
+            console.log("updateData ERROR: ", err);
             throw err;
         }
     },
@@ -54,6 +83,7 @@ const tododata = {
         const query = `DELETE FROM ${table} WHERE idx="${idx}"`;
         try {
             const result = await pool.queryParam(query);
+            await console.log(result);
             return result;
         } catch (err) {
             if (err.errno == 1062) {
@@ -68,6 +98,7 @@ const tododata = {
         const query = `DELETE FROM ${table}`;
         try {
             const result = await pool.queryParam(query);
+            await console.log(result);
             return result;
         } catch (err) {
             if (err.errno == 1062) {
