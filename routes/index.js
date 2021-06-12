@@ -27,6 +27,11 @@ router.post("/todo", async(req, res) => {
   res.status(statusCode.OK).send(util.success(statusCode.OK, resMessage.WRITE_SUCCESS, {idx: newIdx}));
 });
 
+router.delete("/todo/deleteAll", async(req, res) => {
+  result = await Todo.deleteAllData();
+  res.status(statusCode.OK).send(util.success(statusCode.OK, resMessage.DELETE_SUCCESS, {}));
+});
+
 router.delete("/todo/:idx", async(req, res) => {
   const idx = req.params.idx;
   // NULL Value Error handling
@@ -43,5 +48,7 @@ router.delete("/todo/:idx", async(req, res) => {
   result = await Todo.deleteData(idx);
   res.status(statusCode.OK).send(util.success(statusCode.OK, resMessage.DELETE_SUCCESS, {deletedDataIdx: idx}));
 });
+
+
 
 module.exports = router;

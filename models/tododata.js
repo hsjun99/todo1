@@ -63,6 +63,20 @@ const tododata = {
             console.log("deleteData ERROR: ", err);
             throw err;
         }
+    },
+    deleteAllData: async () => {
+        const query = `DELETE FROM ${table}`;
+        try {
+            const result = await pool.queryParam(query);
+            return result;
+        } catch (err) {
+            if (err.errno == 1062) {
+                console.log('deleteAllData ERROR: ', err.errno, err.code);
+                return -1;
+            }
+            console.log("deleteAllData ERROR: ", err);
+            throw err;
+        }
     }
 }
 
