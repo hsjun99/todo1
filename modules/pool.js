@@ -8,10 +8,10 @@ module.exports = {
                 const connection = await pool.getConnection();
                 try {
                     const result = await connection.query(query);
-                    //pool.releaseConnection(connection);
+                    pool.releaseConnection(connection);
                     resolve(result);
                 } catch (err) {
-                    //pool.releaseConnection(connection);
+                    pool.releaseConnection(connection);
                     reject(err);
                 }
             } catch (err) {
@@ -27,7 +27,6 @@ module.exports = {
                 try {
                     const result = await connection.query(query, value);
                     pool.releaseConnection(connection);
-                    //await console.log(result);
                     resolve(result);
                 } catch (err) {
                     pool.releaseConnection(connection);
