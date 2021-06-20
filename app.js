@@ -57,8 +57,29 @@ admin
 */
 
 app.get('/authuser', async(req, res)=>{
-  await res.send("Hello World");
-  await console.log(req.headers);
+  idToken = req.headers.authorization;
+  admin
+    .auth()
+    .verifyIdToken(idToken)
+    .then((decodedToken) => {
+      const uid = decodedToken.uid;
+      admin
+        .auth()
+        .getUser(uid)
+        .then((userRecord) => {
+          res.send("Welcome " + userRecord.providerData[0].displayName)
+          console.log(userRecord);
+        })
+        .catch((error) => {
+          console.log('Error fetching user data:', error);
+        });
+      // ...
+    })
+    .catch((error) => {
+      res.send("SORRY. You are not in our user list.")
+      // Handle error
+      console.log(error);
+    });
 });
 
 
