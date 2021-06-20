@@ -8,6 +8,8 @@ var admin = require('firebase-admin');
 var indexRouter = require('./routes/index');
 //var usersRouter = require('./routes/users');
 
+var kakao_auth = require('./kakao_auth.js');
+
 var app = express();
 
 // view engine setup
@@ -55,7 +57,7 @@ admin
     console.log(error);
   });
 */
-
+/*
 app.get('/authuser', async(req, res)=>{
   idToken = req.headers.authorization;
   admin
@@ -85,7 +87,20 @@ app.get('/authuser', async(req, res)=>{
 
 app.use('/', indexRouter);
 //app.use('/users', usersRouter);
+*/
 
+app.get('/callbacks/kakao/sign_in', async (request, response) => {
+  //Authentication Code 받아 돌려줄 api 
+  const redirect = `webauthcallback://success?${new URLSearchParams(request.query).toString()}`;
+  console.log(`Redirecting to ${redirect}`);
+  response.redirect(307, redirect);
+});
+app.post('/callbacks/kakao/token', async (request, response) => {
+  //발급 받은 kakao AccessCode로 사용자 확인후 firebase 로 custom token 생성하기 위한 api
+  kakao_auth.createFirebaseToken(request.body["accessToken"],(resulst)=>{
+    response.send(resulst);
+  });
+});
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
